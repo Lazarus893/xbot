@@ -25,6 +25,9 @@
   - referencing content from links
   - referencing content from embedded media (images, gifs, video; polls not yet supported)
 - uses a scoring heuristic for prioritizing which tweets to respond to when the bot goes viral
+- two-tier LLM tweet filter modes:
+  - **Alva1.0** (`TWEET_FILTER_MODE=alva1`): simple LLM yes/no relevance check
+  - **Alva2.0** (`TWEET_FILTER_MODE=alva2`): hard rule pre-filter (retweets, short text, promo spam, stale tweets) + semantic LLM with confidence scores, reply angles, and topic tags
 - ignores known bot accounts to prevent them from endlessly replying to each other
 - supports running multiple bots w/ the same redis instance
 - thoroughly tested in production

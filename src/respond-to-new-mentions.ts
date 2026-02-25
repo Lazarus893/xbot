@@ -182,7 +182,13 @@ export async function respondToNewMentions(ctx: types.Context) {
               return message
             }
 
-            const filterResult = await checkTweetRelevance(prompt, ctx)
+            const filterResult = await checkTweetRelevance(prompt, ctx, {
+              referencedTweets: mention.referenced_tweets?.map((t) => ({
+                type: t.type,
+                id: t.id
+              })),
+              createdAt: (mention as any).created_at
+            })
             if (!filterResult.worthReplyingTo) {
               console.log(
                 'skipping irrelevant tweet:',

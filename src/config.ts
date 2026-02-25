@@ -24,6 +24,10 @@ if (twitterApiPlan === 'free') {
 export const defaultAnswerEngineType: types.AnswerEngineType =
   (process.env.ANSWER_ENGINE as types.AnswerEngineType) ?? 'openai'
 
+export type TweetFilterMode = 'alva1' | 'alva2'
+export const tweetFilterMode: TweetFilterMode =
+  (process.env.TWEET_FILTER_MODE as TweetFilterMode) ?? 'alva1'
+
 // Twitter really doesn't like bots that tag other users in automatd replies.
 // @ChatGPTBot has been suspended a few times for this in previous verisons.
 export const disallowMentionsInBotReplies = false
