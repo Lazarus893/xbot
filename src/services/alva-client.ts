@@ -77,7 +77,7 @@ export class AlvaClient {
 
     for (const line of lines) {
       try {
-        const chunk: AlvaChatStreamChunk = JSON.parse(line)
+        const chunk = JSON.parse(line) as AlvaChatStreamChunk
 
         if (chunk.msg === '<GENERATING>') {
           generating = true

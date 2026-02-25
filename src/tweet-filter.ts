@@ -66,7 +66,10 @@ async function checkAlva1(tweetText: string): Promise<TweetFilterResult> {
     return { worthReplyingTo: true, reason: 'filter returned empty response' }
   }
 
-  const parsed = JSON.parse(content)
+  const parsed = JSON.parse(content) as {
+    worth_replying_to?: boolean
+    reason?: string
+  }
   return {
     worthReplyingTo: !!parsed.worth_replying_to,
     reason: parsed.reason || ''
@@ -193,7 +196,13 @@ async function checkAlva2Semantic(
     return { worthReplyingTo: true, reason: 'filter returned empty response' }
   }
 
-  const parsed = JSON.parse(content)
+  const parsed = JSON.parse(content) as {
+    decision?: string
+    reason?: string
+    confidence?: number
+    reply_angle?: string
+    topic_tags?: string[]
+  }
   return {
     worthReplyingTo: parsed.decision === 'reply',
     reason: parsed.reason || '',
