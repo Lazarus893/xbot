@@ -4,6 +4,7 @@ import * as db from '../src/db.js'
 import { BotError } from './bot-error.js'
 import { getTweetMentionsBatch } from './mentions.js'
 import { checkModeration } from './moderations.js'
+import { checkTweetRelevance } from './tweet-filter.js'
 import { createTweet } from './twitter.js'
 import { getTweetUrl, maxTwitterId, minTwitterId } from './twitter-utils.js'
 import type * as types from './types.js'
@@ -178,6 +179,18 @@ export async function respondToNewMentions(ctx: types.Context) {
             }
 
             if (ctx.debugAnswerEngine) {
+              return message
+            }
+
+            const filterResult = await checkTweetRelevance(prompt, ctx)
+            if (!filterResult.worthReplyingTo) {
+              console.log(
+                'skipping irrelevant tweet:',
+                filterResult.reason,
+                getDebugMention(mention)
+              )
+              message.error = `filtered: ${filterResult.reason}`
+              message.isErrorFinal = true
               return message
             }
 

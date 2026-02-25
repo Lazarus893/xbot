@@ -1,11 +1,9 @@
-import { ChatModel, Msg, type Prompt, stringifyForModel } from '@dexaai/dexter'
-import { stripUserMentions } from 'twitter-utils'
-
 import { AnswerEngine } from '../answer-engine.js'
+import { AlvaClient } from '../services/alva-client.js'
+import { openaiClient } from '../services/openai-client.js'
 import type * as types from '../types.js'
-import { getCurrentDate } from '../utils.js'
 
-const alvaSystemPrompt = `You are Alva, a high-performance trading AI assistant focused on crypto markets. You respond to tweets on Twitter with the handle {{BOT_HANDLE}}.
+const tweetRewriteSystemPrompt = `You are Alva, a high-performance trading AI assistant focused on crypto markets. Here's your core identity:
 
 Your Identity:
 
@@ -34,7 +32,6 @@ Use relevant market context
 Transform unknowns into strategic insights
 Never use template responses
 Keep users engaged while maintaining credibility
-
 Formatting Guidelines:
 
 Use line breaks between major sections
@@ -42,12 +39,6 @@ Include emojis strategically for visual breaks
 Keep paragraphs short (2-3 lines max)
 Use bullet points for multiple items
 Add spacing for readability
-DO NOT use hashtags
-DO NOT use JSON
-DO NOT @mention usernames in your reply
-DO NOT use markdown syntax - use plain text only
-Make sure to be as concise as possible because tweets have character limits
-
 Tweet-Style Responses (around 60 words):
 
 "Market check: $BTC holding 40k support, alt season brewing 👀 Whale wallets accumulating, funding neutral. Perfect setup for a leg up if stocks behave. Stay sharp CT 🎯"
@@ -74,70 +65,64 @@ Trade accordingly."
 Core Principles:
 
 You don't waste words
-You should output in the language used in the query
+You should output in the language used in the response material I gave you
 You make insights easy to consume
 You speak in a way that keeps traders engaged
 If the user's question is not a serious conceptual interpretation, project analysis or other serious inquiries, but a mockery of the current market or project status, you should also respond to the user in a relaxed and humorous way, rather than a rigorous analysis.
-You are able to answer non-web3 question, but keep your communication style
+You are able to answer non-web3 question even if you do not receive response material, but keep your communication style
+Your response should answer the questions following at the same time, especially when the second one is not empty, even if it is not related with web3.
 You're a high-speed, precision-built trading tool that feels alive
-You should not omit any specific numbers or data available in context
-Please use plain text and do not use any markdown syntax
+These traits and examples define how you, Alva, interact and communicate with users, maintaining professionalism while delivering engaging, high-value insights.
+Please generate your own response based on the response material and query I gave you and directly output below. You should not omit any specific numbers or data mentioned in the response material in your answer. Please answer in the main language used in the response material. You should not forget to please use plain text and do not use any markdown syntax.`
 
-Current date: {{CURRENT_DATE}}.`
+export class AlvaAnswerEngine extends AnswerEngine {
+  protected readonly _alvaClient: AlvaClient
 
-export class OpenAIAnswerEngine extends AnswerEngine {
-  protected _chatModel: ChatModel
+  constructor() {
+    super({ type: 'alva' })
 
-  constructor({
-    type = 'openai',
-    chatModel = new ChatModel({
-      params: {
-        model: 'gpt-4.1-mini'
-      }
-    })
-  }: { type?: types.AnswerEngineType; chatModel?: ChatModel } = {}) {
-    super({ type })
-
-    this._chatModel = chatModel
+    this._alvaClient = new AlvaClient()
   }
 
   protected override async _generateResponseForQuery(
     query: types.AnswerEngineQuery,
-    ctx: types.AnswerEngineContext
+    _ctx: types.AnswerEngineContext
   ): Promise<string> {
-    const currentDate = getCurrentDate()
+    const userPrompt = query.chatMessages
+      .filter((m) => m.role === 'user')
+      .map((m) => m.content)
+      .join('\n')
 
-    const systemPrompt = alvaSystemPrompt
-      .replace('{{BOT_HANDLE}}', ctx.twitterBotHandle)
-      .replace('{{CURRENT_DATE}}', currentDate)
+    const alvaResponse = await this._alvaClient.generateResponse(userPrompt)
 
-    const messages: Prompt.Msg[] = [
-      Msg.system(systemPrompt),
+    console.log('alva raw response:', alvaResponse)
 
-      Msg.system(`Tweets and twitter users referenced in this twitter thread include:
+    return this._rewriteForTwitter(userPrompt, alvaResponse)
+  }
 
-\`\`\`json
-${stringifyForModel(query.rawEntityMap)}
-\`\`\`
-`),
-
-      ...query.chatMessages
-    ]
-
-    const res = await this._chatModel.run({
-      messages,
+  private async _rewriteForTwitter(
+    query: string,
+    responseMaterial: string
+  ): Promise<string> {
+    const res = await openaiClient.chat.completions.create({
+      model: 'gpt-4.1-mini',
+      messages: [
+        { role: 'system', content: tweetRewriteSystemPrompt },
+        {
+          role: 'user',
+          content: `Here is the user's query:\n${query}\n\nHere is the response material:\n${responseMaterial}`
+        }
+      ],
       max_tokens: 280
     })
 
-    const response = stripUserMentions(res.message.content!)
-      .replace(/#\w+/g, '')
-      .trim()
+    const rewritten = res.choices[0]?.message?.content
+    if (!rewritten) {
+      throw new Error('OpenAI returned empty response during tweet rewrite')
+    }
 
-    console.log('openai', {
-      messages,
-      response
-    })
+    console.log('alva rewritten for twitter:', rewritten)
 
-    return response
+    return rewritten
   }
 }

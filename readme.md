@@ -12,7 +12,7 @@
 ## Features
 
 - extremely robust (used on an acct w/ 150k+ followers)
-- supports multiple AI answer engines: openai, dexa, and perplexity
+- supports multiple AI answer engines: openai, dexa, and alva
 - persists state to redis and caches all twitter objects to maximize quota usage
 - maximizes twitter api throughput w/ plan-dependent throttling
 - resolves structured entity data to give answer engines additional context
@@ -41,6 +41,9 @@ Dependencies to call out:
 - [OpenAI](https://platform.openai.com/overview) chat completions API is used as the default answer engine
   - OpenAI's [moderations endpoint](https://platform.openai.com/docs/guides/moderation) is also used to filter out inappropriate tweets
 - [Dexa](https://dexa.ai) is an excellent answer engine whose API is currently in private beta (otherwise it would be the default)
+- [Alva](https://alva.ai) is an AI-powered answer engine that uses a streaming NDJSON API
+  - Requires a valid JWT token (`ALVA_JWT_TOKEN`) for authentication
+  - Optionally configure `ALVA_API_BASE_URL` (defaults to `https://api-llm2.prd.alva.xyz`) and `ALVA_SKILL_ID` (defaults to `1940947595121053696`)
 - [Redis](https://redis.io) is used to persist state across runs and cache twitter objects (tweets, users, mentions) in order to maximize our use of twitter API quotas
   - Redis is optional, and if you don't specify a redis instance, state will be "persisted" to an in-memory store
   - However, given twitter's quotas, using a redis instance to cache twitter objects is highly recommended
@@ -58,7 +61,7 @@ Usage:
   xbot [flags...]
 
 Flags:
-  -a, --answer-engine <string>                      Answer engine to use (openai, dexa, or perplexity) (default: "openai")
+  -a, --answer-engine <string>                      Answer engine to use (openai, dexa, or alva) (default: "openai")
       --debug                                       Enables debug logging
   -t, --debug-tweet-ids <string>                    Specifies a tweet to process instead of responding to mentions with
                                                     the default behavior. Multiple tweets ids can be specified (-t id1
