@@ -15,7 +15,7 @@ export type { TwitterClient }
 
 export type MessageType = 'tweet' | 'dm'
 export type Role = 'user' | 'assistant'
-export type AnswerEngineType = 'openai' | 'dexa' | 'alva'
+export type AnswerEngineType = 'openai' | 'alva'
 export type TwitterApiPlan = 'free' | 'basic' | 'pro' | 'enterprise'
 
 export type Context = {

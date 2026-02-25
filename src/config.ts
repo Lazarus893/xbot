@@ -39,13 +39,7 @@ export const tweetIgnoreList = new Set<string>([
 
 // Used by the author(s) for faster testing and feedback
 export const priorityUsersList = new Set<string>([
-  '327034465', // transitive_bs
-  '2349038684', // rileytomasek
-  '1611066692330786819', // dexa_ai
-  '1235525929335689217', // LofiGrind (test acct)
-  '1386021646906048515', // samrcharles (test acct)
-  '1598922281434103808', // ChatGPTBot
-  '1757989045383106560' // AskDexa
+  // add your own priority user IDs here
 ])
 
 // If Redis is disabled, all state will be stored in memory
