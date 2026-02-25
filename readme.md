@@ -1,7 +1,7 @@
 <p>
-  <a href="https://twitter.com/AskDexa"><img alt="@AskDexa on Twitter" src="https://img.shields.io/badge/twitter-@AskDexa-blue" /></a>
-  <a href="https://github.com/dexaai/xbot/actions/workflows/test.yml"><img alt="Build Status" src="https://github.com/dexaai/xbot/actions/workflows/main.yml/badge.svg" /></a>
-  <a href="https://github.com/dexaai/xbot/blob/main/license"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue" /></a>
+  <a href="https://alva.ai"><img alt="Alva AI" src="https://img.shields.io/badge/powered_by-Alva_AI-blue" /></a>
+  <a href="https://github.com/Lazarus893/xbot/actions/workflows/main.yml"><img alt="Build Status" src="https://github.com/Lazarus893/xbot/actions/workflows/main.yml/badge.svg" /></a>
+  <a href="https://github.com/Lazarus893/xbot/blob/master/license"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue" /></a>
   <a href="https://prettier.io"><img alt="Prettier Code Formatting" src="https://img.shields.io/badge/code_style-prettier-brightgreen.svg" /></a>
 </p>
 
@@ -108,4 +108,4 @@ Flags:
 
 ## License
 
-MIT © [Dexa](https://dexa.ai)
+MIT © [Alva](https://alva.ai)
